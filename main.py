@@ -1,28 +1,37 @@
-import pandas as pd
+from ExpenseData import ExpenseData
+from PySide6 import QtWidgets
+import sys
 
-class ExpenseData:
+class App:
     def __init__(self):
-        self.cols = ["name", "store", "amount", "date"]
+        self.app = QtWidgets.QApplication(sys.argv)
 
-    def load_file(self, file_path:str):
-        self.data = pd.read_csv(file_path)
-        self.data["date"] = pd.to_datetime(self.data["date"])
+        self.ExpenseManager = ExpenseData()
+        self.ExpenseManager.load_file("experimental_original.csv")
+        (self.rows, self.cols) = self.ExpenseManager.data.shape
+        self.rows+=1 # need row for column names
 
-    def save_file(self, file_path:str):
-        self.data.to_csv(file_path, index=False)
+        # Create table
+        self.table_widget = QtWidgets.QTableWidget(self.rows, self.cols)
+        self.fill_table()
 
-    def add_entry(self, name, store, amount, date):
-        tmp_entry = pd.DataFrame([[name, store, amount, pd.Timestamp(date)]], columns=self.cols)
-        self.data = pd.concat([self.data, tmp_entry], ignore_index=True)
-    
-    def delete_entry(self):
-        self.data.drop([0], inplace=True)
-    
+    def fill_table(self):
+        # Set headers.
+        col_names = self.ExpenseManager.get_cols()
+        for i in range(len(col_names)):
+            tmp_item = QtWidgets.QTableWidgetItem(col_names[i])
+            self.table_widget.setItem(0, i, tmp_item)
+        
+        # Set entries.
+        for i in range(self.rows-1):
+            for j in range(self.cols):
+                tmp_item = QtWidgets.QTableWidgetItem(str(self.ExpenseManager.data.iat[i, j]))
+                self.table_widget.setItem(i+1, j, tmp_item)
 
 
+    def run(self):
+        self.table_widget.show()
+        self.app.exec()
 
-TimeManager = ExpenseData()
-TimeManager.load_file("experimental_original.csv")
-TimeManager.add_entry("Nuggets", "Target", 50.9, "05-24-2026")
-TimeManager.delete_entry()
-TimeManager.save_file("experimental_altered.csv")
+app = App()
+app.run()
