@@ -1,6 +1,7 @@
 from ExpenseData import ExpenseData
 from MainWidget import MainWidget
-from PySide6.QtWidgets import QApplication, QTableWidget, QTableWidgetItem, QPushButton
+from PySide6.QtWidgets import QApplication, QTableWidgetItem
+from PySide6.QtCore import Slot
 import sys
 
 class App:
@@ -16,6 +17,8 @@ class App:
         self.main_widget = MainWidget(self.rows, self.cols)
         self.fill_table()
 
+        self.main_widget.add_button.clicked.connect(self.add_row)
+
     def fill_table(self):
         # Set headers.
         col_names = self.ExpenseManager.get_cols()
@@ -28,7 +31,11 @@ class App:
             for j in range(self.cols):
                 tmp_item = QTableWidgetItem(str(self.ExpenseManager.data.iat[i, j]))
                 self.main_widget.table_widget.setItem(i+1, j, tmp_item)
-
+    
+    @Slot()
+    def add_row(self):
+        self.main_widget.table_widget.insertRow(self.rows)
+        self.rows+=1
 
     def run(self):
         self.main_widget.show()
