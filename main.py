@@ -1,16 +1,16 @@
-from ExpenseData import ExpenseData
 from MainWidget import MainWidget
 from PySide6.QtWidgets import QApplication, QTableWidgetItem
 from PySide6.QtCore import Slot
+import pandas as pd
 import sys
 
 class App:
     def __init__(self):
         self.app = QApplication(sys.argv)
 
-        self.ExpenseManager = ExpenseData()
-        self.ExpenseManager.load_file("experimental_original.csv")
-        (self.rows, self.cols) = self.ExpenseManager.data.shape
+        self.data = pd.read_csv("experimental_original.csv")
+        self.cols_names = ["name", "store", "amount", "date"]
+        (self.rows, self.cols) = self.data.shape
         self.rows+=1 # need row for column names
 
         # Create table
@@ -22,26 +22,27 @@ class App:
 
     def fill_table(self):
         # Set headers.
-        col_names = self.ExpenseManager.get_cols()
-        for i in range(len(col_names)):
-            tmp_item = QTableWidgetItem(col_names[i])
+        for i in range(len(self.cols_names)):
+            tmp_item = QTableWidgetItem(self.cols_names[i])
             self.main_widget.table_widget.setItem(0, i, tmp_item)
         
         # Set entries.
         for i in range(self.rows-1):
-            for j in range(self.cols):
-                tmp_item = QTableWidgetItem(str(self.ExpenseManager.data.iat[i, j]))
+            for j in range(len(self.cols_names)):
+                tmp_item = QTableWidgetItem(str(self.data.iat[i, j]))
                 self.main_widget.table_widget.setItem(i+1, j, tmp_item)
     
     @Slot()
     def add_row(self):
         self.main_widget.table_widget.insertRow(self.rows)
+        tmp_entry = pd.DataFrame([[None, None, None, None]], columns=self.cols_names)
+        self.data = pd.concat([self.data, tmp_entry], ignore_index=True)
         self.rows+=1
-    
+
     @Slot()
     def save_to_file(self):
         print("Saving")
-        self.ExpenseManager.save_file("experimental_altered.csv")
+        self.data.to_csv("experimental_altered.csv", index=False)
 
     def run(self):
         self.main_widget.show()
