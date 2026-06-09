@@ -18,6 +18,7 @@ class App:
         self.fill_table()
 
         self.main_widget.add_button.clicked.connect(self.add_row)
+        self.main_widget.save_button.clicked.connect(self.save_to_file)
 
     def fill_table(self):
         # Set headers.
@@ -36,6 +37,11 @@ class App:
     def add_row(self):
         self.main_widget.table_widget.insertRow(self.rows)
         self.rows+=1
+    
+    @Slot()
+    def save_to_file(self):
+        print("Saving")
+        self.ExpenseManager.save_file("experimental_altered.csv")
 
     def run(self):
         self.main_widget.show()
