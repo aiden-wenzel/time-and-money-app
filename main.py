@@ -8,7 +8,7 @@ class App:
     def __init__(self):
         self.app = QApplication(sys.argv)
 
-        self.data = pd.read_csv("experimental_original.csv")
+        self.data = pd.read_csv("experimental_original.csv", na_filter=False)
         self.cols_names = ["name", "store", "amount", "date"]
         (self.rows, self.cols) = self.data.shape
         self.rows+=1 # need row for column names
@@ -35,14 +35,29 @@ class App:
     @Slot()
     def add_row(self):
         self.main_widget.table_widget.insertRow(self.rows)
-        tmp_entry = pd.DataFrame([[None, None, None, None]], columns=self.cols_names)
-        self.data = pd.concat([self.data, tmp_entry], ignore_index=True)
         self.rows+=1
 
     @Slot()
     def save_to_file(self):
         print("Saving")
-        self.data.to_csv("experimental_altered.csv", index=False)
+        tmp_col_names = []
+        tmp_data = []
+        for row in range(self.rows):
+            tmp_row = []
+            for col in range(self.cols):
+                item = self.main_widget.table_widget.item(row, col)
+                if item != None:
+                    tmp_row.append(item.text())
+                else:
+                    tmp_row.append("")
+            
+            if row == 0:
+                tmp_col_names = tmp_row
+            else:
+                tmp_data.append(tmp_row)
+
+        save_df = pd.DataFrame(data=tmp_data, columns=tmp_col_names)
+        save_df.to_csv("experimental_altered.csv", index=False)
 
     def run(self):
         self.main_widget.show()
