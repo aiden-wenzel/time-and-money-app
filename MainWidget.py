@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import QApplication, QTableWidget, QTableWidgetItem, QPushButton, QWidget, QVBoxLayout
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg, NavigationToolbar2QT
 from matplotlib.figure import Figure
+import numpy as np
 
 class MainWidget(QWidget):
     def __init__(self, rows, cols):
@@ -23,5 +24,15 @@ class MainWidget(QWidget):
         fig = Figure()
         self.pie_canvas = FigureCanvasQTAgg(fig)
         self.layout.addWidget(self.pie_canvas)
-        ax = fig.add_subplot()
-        ax.plot(range(10), range(10))
+        self.ax = fig.add_subplot()
+    
+    def fill_pie_chart(self, tag_cost_dict: dict):
+
+        x = list(tag_cost_dict.values())
+        labels = list(tag_cost_dict.keys())
+
+        pie = self.ax.pie(x)
+
+        x_str = ["$" + str(num) for num in x]
+        self.ax.pie_label(pie, x_str)
+        self.ax.legend(labels)

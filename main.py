@@ -21,6 +21,7 @@ class App:
         self.main_widget.delete_button.clicked.connect(self.delete_selected_items)
 
         self.tag_costs = self.calculate_tag_costs()
+        self.main_widget.fill_pie_chart(self.tag_costs)
          
 
     def fill_table(self):
