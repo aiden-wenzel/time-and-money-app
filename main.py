@@ -9,8 +9,8 @@ class App:
         self.app = QApplication(sys.argv)
 
         self.data = pd.read_csv("experimental_original.csv", na_filter=False)
-        self.cols_names = ["name", "store", "amount", "date"]
         (self.rows, self.cols) = self.data.shape
+        self.cols_names = self.data.columns.values
 
         # Create table
         self.main_widget = MainWidget(self.rows, self.cols)
@@ -20,6 +20,9 @@ class App:
         self.main_widget.save_button.clicked.connect(self.save_to_file)
         self.main_widget.delete_button.clicked.connect(self.delete_selected_items)
 
+        self.tag_costs = self.calculate_tag_costs()
+         
+
     def fill_table(self):
         self.main_widget.table_widget.setHorizontalHeaderLabels(self.cols_names)
         
@@ -28,7 +31,31 @@ class App:
             for j in range(len(self.cols_names)):
                 tmp_item = QTableWidgetItem(str(self.data.iat[i, j]))
                 self.main_widget.table_widget.setItem(i, j, tmp_item)
-    
+
+    def calculate_tag_costs(self):
+        tag_index = 0
+        amount_index = 0
+        for i in range(self.cols):
+            if self.main_widget.table_widget.horizontalHeaderItem(i).text() == "tag":
+                tag_index = i
+            elif self.main_widget.table_widget.horizontalHeaderItem(i).text() == "amount":
+                amount_index = i
+        
+        all_tags = []
+        for row in range(self.rows):
+            all_tags.append(self.main_widget.table_widget.item(row, tag_index).text())
+
+        tag_dict = {}
+        for tag in all_tags:
+            tag_dict[tag] = 0
+        
+        for row in range(self.rows):
+            tag = self.main_widget.table_widget.item(row, tag_index).text()
+            cost = float(self.main_widget.table_widget.item(row, amount_index).text())
+            tag_dict[tag] += cost
+
+        return tag_dict
+
     @Slot()
     def add_row(self):
         self.main_widget.table_widget.insertRow(self.rows)
