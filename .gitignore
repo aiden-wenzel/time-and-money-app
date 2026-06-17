@@ -1,3 +1,8 @@
 .venv
 .vscode
 __pycache__
+
+# Pyinstaller files and directories
+build/
+dist/
+main.spec
