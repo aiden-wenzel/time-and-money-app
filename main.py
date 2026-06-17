@@ -5,10 +5,11 @@ import pandas as pd
 import sys
 
 class App:
-    def __init__(self):
+    def __init__(self, expense_data_path: str):
         self.app = QApplication(sys.argv)
-
-        self.data = pd.read_csv("experimental_original.csv", na_filter=False)
+        
+        self.expense_data_path = expense_data_path
+        self.data = pd.read_csv(expense_data_path, na_filter=False)
         (self.rows, self.cols) = self.data.shape
         self.cols_names = self.data.columns.values
 
@@ -37,9 +38,9 @@ class App:
         tag_index = 0
         amount_index = 0
         for i in range(self.cols):
-            if self.main_widget.table_widget.horizontalHeaderItem(i).text() == "tag":
+            if self.main_widget.table_widget.horizontalHeaderItem(i).text() == "Tag":
                 tag_index = i
-            elif self.main_widget.table_widget.horizontalHeaderItem(i).text() == "amount":
+            elif self.main_widget.table_widget.horizontalHeaderItem(i).text() == "Price":
                 amount_index = i
         
         all_tags = []
