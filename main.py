@@ -81,7 +81,6 @@ class App:
 
     @Slot()
     def save_to_file(self):
-        print("Saving")
         tmp_data = []
         for row in range(self.rows):
             tmp_row = []
@@ -99,7 +98,6 @@ class App:
 
     @Slot()
     def delete_selected_items(self):
-        print("Deleting selected rows")
         selected_items = self.main_widget.table_widget.selectedIndexes()
         row_set = set({})
         for item in selected_items:
