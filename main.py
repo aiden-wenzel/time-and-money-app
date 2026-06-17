@@ -94,6 +94,8 @@ class App:
             tmp_data.append(tmp_row)
 
         save_df = pd.DataFrame(data=tmp_data, columns=self.cols_names)
+
+        print(f"Saving to: {self.expense_data_path}")
         save_df.to_csv(self.expense_data_path, index=False)
 
     @Slot()
