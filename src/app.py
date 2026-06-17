@@ -6,16 +6,12 @@ import sys
 import os
 
 class App:
-    def __init__(self, expense_data_path: str):
-        self.app = QApplication(sys.argv)
-
-        self.expense_data_path = expense_data_path
-        # Create empty table if no file exists.
-        expense_data_dir = expense_data_path.split('/')
-        expense_data_dir = "/" + "/".join(expense_data_dir[1:-1])
-        if not os.path.exists(self.expense_data_path):
+    def __init__(self, expense_data_dir: str):
+        if not os.path.exists(expense_data_dir):
             os.mkdir(expense_data_dir)
 
+        expense_file_name = "money_data.csv"
+        self.expense_data_path = expense_data_dir + expense_file_name
         if not os.path.isfile(self.expense_data_path):
             tmp_df = pd.DataFrame(columns=["Name", "Store", "Price", "Date", "Tag"])
             tmp_df.to_csv(self.expense_data_path, index=False)
@@ -25,6 +21,7 @@ class App:
         self.cols_names = self.data.columns.values
 
         # Create table
+        self.app = QApplication(sys.argv)
         self.main_widget = MainWidget(self.rows, self.cols)
         self.fill_table()
 
