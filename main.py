@@ -3,13 +3,21 @@ from PySide6.QtWidgets import QApplication, QTableWidgetItem
 from PySide6.QtCore import Slot
 import pandas as pd
 import sys
+import os
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
 
 class App:
     def __init__(self, expense_data_path: str):
         self.app = QApplication(sys.argv)
-        
+
         self.expense_data_path = expense_data_path
-        self.data = pd.read_csv(expense_data_path, na_filter=False)
+        # Create empty table if no file exists.
+        if not os.path.isfile(self.expense_data_path):
+            tmp_df = pd.DataFrame(columns=["Name", "Store", "Price", "Date", "Tag"])
+            tmp_df.to_csv(self.expense_data_path, index=False)
+        
+        self.data = pd.read_csv(self.expense_data_path, na_filter=False)
         (self.rows, self.cols) = self.data.shape
         self.cols_names = self.data.columns.values
 
@@ -103,5 +111,5 @@ class App:
         self.main_widget.show()
         self.app.exec()
 
-app = App("money_data.csv")
+app = App(dir_path + "/money_data.csv")
 app.run()
