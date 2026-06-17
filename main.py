@@ -49,12 +49,18 @@ class App:
 
         tag_dict = {}
         for tag in all_tags:
-            tag_dict[tag] = 0
+            if tag == "":
+                continue
+            else:
+                tag_dict[tag] = 0
         
         for row in range(self.rows):
             tag = self.main_widget.table_widget.item(row, tag_index).text()
-            cost = float(self.main_widget.table_widget.item(row, amount_index).text())
-            tag_dict[tag] += cost
+            if tag == "":
+                continue
+            else:
+                cost = float(self.main_widget.table_widget.item(row, amount_index).text())
+                tag_dict[tag] += cost
 
         return tag_dict
 
@@ -79,7 +85,7 @@ class App:
             tmp_data.append(tmp_row)
 
         save_df = pd.DataFrame(data=tmp_data, columns=self.cols_names)
-        save_df.to_csv("experimental_altered.csv", index=False)
+        save_df.to_csv(self.expense_data_path, index=False)
 
     @Slot()
     def delete_selected_items(self):
@@ -94,5 +100,5 @@ class App:
         self.main_widget.show()
         self.app.exec()
 
-app = App()
+app = App("money_data.csv")
 app.run()
