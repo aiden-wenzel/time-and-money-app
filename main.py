@@ -90,10 +90,13 @@ class App:
     @Slot()
     def delete_selected_items(self):
         print("Deleting selected rows")
-        selected_items = list(reversed(self.main_widget.table_widget.selectedIndexes()))
+        selected_items = self.main_widget.table_widget.selectedIndexes()
+        row_set = set({})
         for item in selected_items:
-            item_row = item.row()
-            self.main_widget.table_widget.removeRow(item_row)
+            row_set.add(item.row())
+        selected_rows = list(reversed(sorted(row_set)))
+        for row in selected_rows:
+            self.main_widget.table_widget.removeRow(row)
             self.rows -= 1
 
     def run(self):
