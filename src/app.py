@@ -5,14 +5,17 @@ import pandas as pd
 import sys
 import os
 
-dir_path = os.path.dirname(os.path.realpath(__file__))
-
 class App:
     def __init__(self, expense_data_path: str):
         self.app = QApplication(sys.argv)
 
         self.expense_data_path = expense_data_path
         # Create empty table if no file exists.
+        expense_data_dir = expense_data_path.split('/')
+        expense_data_dir = "/" + "/".join(expense_data_dir[1:-1])
+        if not os.path.exists(self.expense_data_path):
+            os.mkdir(expense_data_dir)
+
         if not os.path.isfile(self.expense_data_path):
             tmp_df = pd.DataFrame(columns=["Name", "Store", "Price", "Date", "Tag"])
             tmp_df.to_csv(self.expense_data_path, index=False)
@@ -112,6 +115,3 @@ class App:
     def run(self):
         self.main_widget.show()
         self.app.exec()
-
-app = App(dir_path + "/money_data.csv")
-app.run()
