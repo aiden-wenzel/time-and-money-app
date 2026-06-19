@@ -102,6 +102,9 @@ class App:
         print(f"Saving to: {self.expense_data_path}")
         save_df.to_csv(self.expense_data_path, index=False)
 
+        # Also refresh the chart!
+        self.refresh_pie_chart()
+
     @Slot()
     def delete_selected_items(self):
         selected_items = self.main_widget.table_widget.selectedIndexes()
@@ -112,6 +115,12 @@ class App:
         for row in selected_rows:
             self.main_widget.table_widget.removeRow(row)
             self.rows -= 1
+    
+    @Slot()
+    def refresh_pie_chart(self):
+        self.tag_costs = self.calculate_tag_costs()
+        if (len(self.tag_costs) > 0):
+            self.main_widget.fill_pie_chart(self.tag_costs)
 
     def run(self):
         self.main_widget.show()
