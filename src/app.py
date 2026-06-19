@@ -72,6 +72,10 @@ class App:
                 cost = float(self.main_widget.table_widget.item(row, amount_index).text())
                 tag_dict[tag] += cost
 
+        # Round to 2 decimal places.
+        for key in tag_dict:
+            tag_dict[key] = round(tag_dict[key], 2)
+
         return tag_dict
 
     @Slot()
