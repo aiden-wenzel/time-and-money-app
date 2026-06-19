@@ -8,7 +8,7 @@ current_os = platform.system()
 if __name__=="__main__":
     if current_os == "Windows":
         print(dir_path)
-        app = App(dir_path + "\..\data\\")
+        app = App(dir_path + "\\..\\data\\")
         app.run()
     elif current_os == "Linux":
         app = App(dir_path + "/../data/")
