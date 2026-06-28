@@ -36,10 +36,11 @@ class App:
             elif self.main_widget.table_widget.horizontalHeaderItem(i).text() == "Price":
                 self.amount_index = i
 
-        self.tag_costs = self.calculate_tag_costs()
+        self.initialize_tag_costs_dict()
+        self.calculate_tag_costs()
         # Prevent pie chart from being filled if there is no table.
-        if (len(self.tag_costs) > 0):
-            self.main_widget.fill_pie_chart(self.tag_costs)
+        if (len(self.tag_dict) > 0):
+            self.main_widget.fill_pie_chart(self.tag_dict)
          
 
     def fill_table(self):
@@ -50,33 +51,35 @@ class App:
             for j in range(len(self.cols_names)):
                 tmp_item = QTableWidgetItem(str(self.data.iat[i, j]))
                 self.main_widget.table_widget.setItem(i, j, tmp_item)
+    
+    def initialize_tag_costs_dict(self):
+        self.tag_dict = {}
+        for row in range(self.rows):
+            tag_item = self.main_widget.table_widget.item(row, self.tag_index)
+            if type(tag_item) == None or tag_item.text() == "":
+                self.tag_dict["None"] = 0.0
+            else:
+                self.tag_dict[tag_item.text()] = 0.0
 
     def calculate_tag_costs(self):
-        
-        all_tags = []
-        for row in range(self.rows):
-            all_tags.append(self.main_widget.table_widget.item(row, self.tag_index).text())
+        # Reset the dictionary.
+        for key in self.tag_dict:
+            self.tag_dict[key] = 0.0
 
-        tag_dict = {}
-        for tag in all_tags:
-            if tag == "":
-                continue
-            else:
-                tag_dict[tag] = 0
-        
         for row in range(self.rows):
-            tag = self.main_widget.table_widget.item(row, self.tag_index).text()
-            if tag == "":
+            tag_item = self.main_widget.table_widget.item(row, self.tag_index)
+            cost_item = self.main_widget.table_widget.item(row, self.amount_index)
+            if type(cost_item) == None:
                 continue
+            elif cost_item.text() == "":
+                continue
+            elif type(tag_item) == None or tag_item.text() == "":
+                self.tag_dict["None"] += float(cost_item.text())
             else:
-                cost = float(self.main_widget.table_widget.item(row, self.amount_index).text())
-                tag_dict[tag] += cost
-
+                self.tag_dict[tag_item.text()] += float(cost_item.text())
         # Round to 2 decimal places.
-        for key in tag_dict:
-            tag_dict[key] = round(tag_dict[key], 2)
-
-        return tag_dict
+        for key in self.tag_dict:
+            self.tag_dict[key] = round(self.tag_dict[key], 2)
 
     @Slot()
     def add_row(self):
@@ -118,9 +121,9 @@ class App:
     
     @Slot()
     def refresh_pie_chart(self):
-        self.tag_costs = self.calculate_tag_costs()
-        if (len(self.tag_costs) > 0):
-            self.main_widget.fill_pie_chart(self.tag_costs)
+        self.calculate_tag_costs()
+        if (len(self.tag_dict) > 0):
+            self.main_widget.fill_pie_chart(self.tag_dict)
 
     def run(self):
         self.main_widget.show()
