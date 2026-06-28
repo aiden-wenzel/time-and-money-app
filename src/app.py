@@ -29,6 +29,13 @@ class App:
         self.main_widget.save_button.clicked.connect(self.save_to_file)
         self.main_widget.delete_button.clicked.connect(self.delete_selected_items)
 
+        # Find the tag column and price column.
+        for i in range(self.cols):
+            if self.main_widget.table_widget.horizontalHeaderItem(i).text() == "Tag":
+                self.tag_index = i
+            elif self.main_widget.table_widget.horizontalHeaderItem(i).text() == "Price":
+                self.amount_index = i
+
         self.tag_costs = self.calculate_tag_costs()
         # Prevent pie chart from being filled if there is no table.
         if (len(self.tag_costs) > 0):
@@ -45,17 +52,10 @@ class App:
                 self.main_widget.table_widget.setItem(i, j, tmp_item)
 
     def calculate_tag_costs(self):
-        tag_index = 0
-        amount_index = 0
-        for i in range(self.cols):
-            if self.main_widget.table_widget.horizontalHeaderItem(i).text() == "Tag":
-                tag_index = i
-            elif self.main_widget.table_widget.horizontalHeaderItem(i).text() == "Price":
-                amount_index = i
         
         all_tags = []
         for row in range(self.rows):
-            all_tags.append(self.main_widget.table_widget.item(row, tag_index).text())
+            all_tags.append(self.main_widget.table_widget.item(row, self.tag_index).text())
 
         tag_dict = {}
         for tag in all_tags:
@@ -65,11 +65,11 @@ class App:
                 tag_dict[tag] = 0
         
         for row in range(self.rows):
-            tag = self.main_widget.table_widget.item(row, tag_index).text()
+            tag = self.main_widget.table_widget.item(row, self.tag_index).text()
             if tag == "":
                 continue
             else:
-                cost = float(self.main_widget.table_widget.item(row, amount_index).text())
+                cost = float(self.main_widget.table_widget.item(row, self.amount_index).text())
                 tag_dict[tag] += cost
 
         # Round to 2 decimal places.
