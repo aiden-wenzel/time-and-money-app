@@ -36,7 +36,6 @@ class App:
             elif self.main_widget.table_widget.horizontalHeaderItem(i).text() == "Price":
                 self.amount_index = i
 
-        self.initialize_tag_costs_dict()
         self.calculate_tag_costs()
         # Prevent pie chart from being filled if there is no table.
         if (len(self.tag_dict) > 0):
@@ -63,8 +62,7 @@ class App:
 
     def calculate_tag_costs(self):
         # Reset the dictionary.
-        for key in self.tag_dict:
-            self.tag_dict[key] = 0.0
+        self.initialize_tag_costs_dict()
 
         for row in range(self.rows):
             tag_item = self.main_widget.table_widget.item(row, self.tag_index)
