@@ -1,9 +1,13 @@
 from MainWidget import MainWidget
-from PySide6.QtWidgets import QApplication, QTableWidgetItem
+from ErrorPopup import ErrorPopup
+from PySide6.QtWidgets import QApplication, QTableWidgetItem, QDialog
 from PySide6.QtCore import Slot
 import pandas as pd
 import sys
 import os
+
+class EmptyCellError(Exception):
+    """Raised when a cell is empty with type NoneType or an empty string."""
 
 class App:
     def __init__(self, expense_data_dir: str):
@@ -55,10 +59,7 @@ class App:
         self.tag_dict = {}
         for row in range(self.rows):
             tag_item = self.main_widget.table_widget.item(row, self.tag_index)
-            if type(tag_item) == None or tag_item.text() == "":
-                self.tag_dict["None"] = 0.0
-            else:
-                self.tag_dict[tag_item.text()] = 0.0
+            self.tag_dict[tag_item.text()] = 0.0
 
     def calculate_tag_costs(self):
         # Reset the dictionary.
@@ -67,14 +68,7 @@ class App:
         for row in range(self.rows):
             tag_item = self.main_widget.table_widget.item(row, self.tag_index)
             cost_item = self.main_widget.table_widget.item(row, self.amount_index)
-            if type(cost_item) == None:
-                continue
-            elif cost_item.text() == "":
-                continue
-            elif type(tag_item) == None or tag_item.text() == "":
-                self.tag_dict["None"] += float(cost_item.text())
-            else:
-                self.tag_dict[tag_item.text()] += float(cost_item.text())
+            self.tag_dict[tag_item.text()] += float(cost_item.text())
         # Round to 2 decimal places.
         for key in self.tag_dict:
             self.tag_dict[key] = round(self.tag_dict[key], 2)
@@ -87,25 +81,32 @@ class App:
     @Slot()
     def save_to_file(self):
         tmp_data = []
-        for row in range(self.rows):
-            tmp_row = []
-            for col in range(self.cols):
-                item = self.main_widget.table_widget.item(row, col)
-                if item != None:
-                    tmp_row.append(item.text())
-                else:
-                    tmp_row.append("")
-            
-            tmp_data.append(tmp_row)
+        try:
+            for row in range(self.rows):
+                tmp_row = []
+                for col in range(self.cols):
+                    item = self.main_widget.table_widget.item(row, col)
+                    if item is None:
+                        raise EmptyCellError("Cannot have empty cell!")
+                    elif item.text() == "":
+                        raise EmptyCellError("Cannot have empty cell!")
+                    else:
+                        tmp_row.append(item.text())
+                
+                tmp_data.append(tmp_row)
+
+        except EmptyCellError:
+            dlg = ErrorPopup(self.main_widget)
+            dlg.exec()
+            return
 
         save_df = pd.DataFrame(data=tmp_data, columns=self.cols_names)
-
         print(f"Saving to: {self.expense_data_path}")
         save_df.to_csv(self.expense_data_path, index=False)
 
         # Also refresh the chart!
         self.refresh_pie_chart()
-
+    
     @Slot()
     def delete_selected_items(self):
         selected_items = self.main_widget.table_widget.selectedIndexes()
