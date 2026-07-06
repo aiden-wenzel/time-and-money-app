@@ -1,7 +1,8 @@
 from MainWidget import MainWidget
 from ErrorPopup import ErrorPopup
 from PySide6.QtWidgets import QApplication, QTableWidgetItem, QDialog
-from PySide6.QtCore import Slot
+from PySide6.QtCore import Slot, QKeyCombination, Qt
+from PySide6.QtGui import QShortcut, QKeySequence 
 import pandas as pd
 import sys
 import os
@@ -29,7 +30,7 @@ class App:
         self.main_widget = MainWidget(self.rows, self.cols)
         self.fill_table()
 
-        self.main_widget.add_button.clicked.connect(self.add_row)
+        #self.main_widget.add_button.clicked.connect(self.insert_row)
         self.main_widget.save_button.clicked.connect(self.save_to_file)
         self.main_widget.delete_button.clicked.connect(self.delete_selected_items)
 
@@ -44,6 +45,11 @@ class App:
         # Prevent pie chart from being filled if there is no table.
         if (len(self.tag_dict) > 0):
             self.main_widget.fill_pie_chart(self.tag_dict)
+
+        # Create shortcuts.
+        tmp = QKeySequence("Ctrl+Return")
+        self.enteritem_shortcut = QShortcut(tmp, self.main_widget, self.save_to_file)
+        self.main_widget.add_button.clicked.connect(self.insert_row)
          
 
     def fill_table(self):
@@ -74,9 +80,17 @@ class App:
             self.tag_dict[key] = round(self.tag_dict[key], 2)
 
     @Slot()
-    def add_row(self):
+    def insert_row(self):
+        """
+        Insert values from the entry fields into the table.
+        """
         self.main_widget.table_widget.insertRow(self.rows)
         self.rows+=1
+        for col in range(self.cols):
+            tmp_item = self.main_widget.add_entry_table.item(0, col)
+            self.main_widget.table_widget.setItem(self.rows-1, col, QTableWidgetItem(tmp_item.text()))
+
+        self.main_widget.add_entry_table.clearContents()
 
     @Slot()
     def save_to_file(self):
