@@ -17,8 +17,17 @@ class FinancialModel:
     def delete_rows(self):
         pass
 
-    def calculate_tag_costs(self):
-        pass
+    def calculate_tag_costs(self) -> list:
+        """
+        Return a dictionary of the cost breakdown for each tag. 
+        """
+        tags = self.get_unique_tags()
+        cost_dict = {}
+        for tag in tags:
+            tmp_tag_only_df = self.data[self.data["Tag"] == tag]
+            cost_dict[tag] = tmp_tag_only_df["Price"].sum()
+
+        return cost_dict
 
     def get_unique_tags(self):
         """
