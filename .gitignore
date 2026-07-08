@@ -2,6 +2,7 @@
 .venv
 .vscode
 __pycache__
+src/time_and_money.egg-info/
 
 # Pyinstaller files and directories
 build/

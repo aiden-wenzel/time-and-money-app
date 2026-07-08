@@ -3,7 +3,7 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "money_manager"
+name = "time_and_money"
 version = "0.1.0"
 dependencies = [
     "pyside6",
