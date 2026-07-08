@@ -20,5 +20,17 @@ class FinancialModel:
     def calculate_tag_costs(self):
         pass
 
+    def get_unique_tags(self):
+        """
+        Return a list containing the unique tags in data.
+        """
+        tags = self.data["Tag"]
+        unique_tags = set({})
+        for tag in tags:
+            unique_tags.add(tag)
+
+        return list(unique_tags)
+
+
     def save_to_file(self, file_path):
         pass
