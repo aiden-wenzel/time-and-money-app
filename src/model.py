@@ -15,8 +15,8 @@ class FinancialModel:
         tmp_entry = pd.DataFrame([entry], columns=self.col_names)
         self.data = pd.concat([self.data, tmp_entry], ignore_index=True)
 
-    def delete_rows(self):
-        pass
+    def delete_rows(self, rows_to_delete):
+        self.data.drop(index=rows_to_delete, inplace=True)
 
     def calculate_tag_costs(self) -> dict[str, float]:
         """

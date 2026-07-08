@@ -40,5 +40,13 @@ def test_model():
     }
 
     assert actual_cost_dict == expected_cost_dict
-    print(actual_cost_dict)
-    print(expected_cost_dict)
+    
+    # Remove the new entry and other dining entry
+    rows_to_remove = [financial_model.get_num_rows()-1, financial_model.get_num_rows()-2]
+    financial_model.delete_rows(rows_to_remove)
+    actual_cost_dict = financial_model.calculate_tag_costs()
+    expected_cost_dict = {
+        "Groceries": 8.49 + 5.99 + 130.27,
+    }
+
+    assert actual_cost_dict == expected_cost_dict
