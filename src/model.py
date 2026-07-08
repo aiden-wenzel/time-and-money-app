@@ -11,13 +11,14 @@ class FinancialModel:
     def get_num_cols(self):
         return self.data.shape[1]
     
-    def add_entry(self):
-        pass
+    def add_entry(self, entry : list):
+        tmp_entry = pd.DataFrame([entry], columns=self.col_names)
+        self.data = pd.concat([self.data, tmp_entry], ignore_index=True)
 
     def delete_rows(self):
         pass
 
-    def calculate_tag_costs(self) -> list:
+    def calculate_tag_costs(self) -> dict[str, float]:
         """
         Return a dictionary of the cost breakdown for each tag. 
         """

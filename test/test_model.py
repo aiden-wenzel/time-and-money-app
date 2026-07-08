@@ -29,3 +29,16 @@ def test_model():
     }
 
     assert actual_cost_dict == expected_cost_dict
+
+    # Test adding a new entry.
+    new_entry = ["Coney", "Leo's", 6.50, "2026-05-06", "Dining"]
+    financial_model.add_entry(new_entry)
+    actual_cost_dict = financial_model.calculate_tag_costs()
+    expected_cost_dict = {
+        "Groceries": 8.49 + 5.99 + 130.27,
+        "Dining" : 6.89 + 6.50
+    }
+
+    assert actual_cost_dict == expected_cost_dict
+    print(actual_cost_dict)
+    print(expected_cost_dict)
