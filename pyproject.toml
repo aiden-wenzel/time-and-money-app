@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "money_manager"
+version = "0.1.0"
+dependencies = [
+    "pyside6",
+    "pandas",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
