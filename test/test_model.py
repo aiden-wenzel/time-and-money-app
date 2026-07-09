@@ -9,7 +9,8 @@ def test_model():
 
     # Basic test
     file_path = dir_path + "/data/money_data.csv"
-    financial_model = FinancialModel(file_path)
+    col_names = ["Name", "Store", "Price", "Date", "Tag"]
+    financial_model = FinancialModel(file_path, col_names)
     assert financial_model.get_num_rows() == 4
     assert financial_model.get_num_cols() == 5
 
