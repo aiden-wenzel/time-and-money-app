@@ -2,16 +2,18 @@ from PySide6.QtWidgets import QApplication, QTableWidget, QTableWidgetItem, QPus
 from PySide6.QtCore import Slot
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg, NavigationToolbar2QT
 from matplotlib.figure import Figure
-import numpy as np
+import pandas as pd
 
 class MainWidget(QWidget):
-    def __init__(self, rows, cols):
+    def __init__(self, col_names: list[str]):
 
         super().__init__()
         self.layout = QGridLayout(self)
+        self.col_names = col_names
 
         # Create table.
-        self.table_widget = QTableWidget(rows, cols)
+        self.table_widget = QTableWidget(0, len(self.col_names))
+        self.table_widget.setHorizontalHeaderLabels(self.col_names)
         self.layout.setColumnMinimumWidth(1, 600)
         self.layout.setColumnMinimumWidth(2, 500)
         self.layout.addWidget(self.table_widget, 1, 1)
@@ -33,7 +35,7 @@ class MainWidget(QWidget):
         self.layout.addWidget(self.save_button, 3, 1)
         self.layout.addWidget(self.delete_button, 4, 1)
 
-        self.add_entry_table = QTableWidget(1, cols)
+        self.add_entry_table = QTableWidget(1, len(self.col_names))
         self.layout.addWidget(self.add_entry_table, 2, 2, 3, 1)
     
     def fill_pie_chart(self, tag_cost_dict: dict):
@@ -48,3 +50,15 @@ class MainWidget(QWidget):
         self.ax.pie_label(pie, x_str)
         self.ax.legend(labels)
         self.pie_canvas.draw()
+
+    def fill_table(self, entries: pd.df):
+        
+        num_rows = entries.shape[0]
+        num_cols = entries.shape[1]
+
+        # Set entries.
+        for i in range(num_rows):
+            self.table_widget.insertRow(i)
+            for j in range(num_cols):
+                tmp_item = QTableWidgetItem(str(entries.iat[i, j]))
+                self.table_widget.setItem(i, j, tmp_item)

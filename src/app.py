@@ -1,5 +1,6 @@
 from MainWidget import MainWidget
 from ErrorPopup import ErrorPopup
+from model import FinancialModel
 from PySide6.QtWidgets import QApplication, QTableWidgetItem, QDialog
 from PySide6.QtCore import Slot, QKeyCombination, Qt
 from PySide6.QtGui import QShortcut, QKeySequence 
@@ -17,50 +18,40 @@ class App:
 
         expense_file_name = "money_data.csv"
         self.expense_data_path = expense_data_dir + expense_file_name
+        self.col_names = ["Name", "Store", "Price", "Date", "Tag"]
         if not os.path.isfile(self.expense_data_path):
-            tmp_df = pd.DataFrame(columns=["Name", "Store", "Price", "Date", "Tag"])
+            tmp_df = pd.DataFrame(columns=self.col_names)
             tmp_df.to_csv(self.expense_data_path, index=False)
         
-        self.data = pd.read_csv(self.expense_data_path, na_filter=False)
-        (self.rows, self.cols) = self.data.shape
-        self.cols_names = self.data.columns.values
+        self.finance_model = FinancialModel(self.expense_data_path, self.col_names)
 
         # Create table
         self.app = QApplication(sys.argv)
-        self.main_widget = MainWidget(self.rows, self.cols)
-        self.fill_table()
+        self.main_widget = MainWidget(self.col_names)
+        print(self.finance_model.get_data())
+        self.main_widget.fill_table(self.finance_model.get_data())
 
-        #self.main_widget.add_button.clicked.connect(self.insert_row)
-        self.main_widget.save_button.clicked.connect(self.save_to_file)
-        self.main_widget.delete_button.clicked.connect(self.delete_selected_items)
+        # #self.main_widget.add_button.clicked.connect(self.insert_row)
+        # self.main_widget.save_button.clicked.connect(self.save_to_file)
+        # self.main_widget.delete_button.clicked.connect(self.delete_selected_items)
 
-        # Find the tag column and price column.
-        for i in range(self.cols):
-            if self.main_widget.table_widget.horizontalHeaderItem(i).text() == "Tag":
-                self.tag_index = i
-            elif self.main_widget.table_widget.horizontalHeaderItem(i).text() == "Price":
-                self.amount_index = i
+        # # Find the tag column and price column.
+        # for i in range(self.cols):
+        #     if self.main_widget.table_widget.horizontalHeaderItem(i).text() == "Tag":
+        #         self.tag_index = i
+        #     elif self.main_widget.table_widget.horizontalHeaderItem(i).text() == "Price":
+        #         self.amount_index = i
 
-        self.calculate_tag_costs()
-        # Prevent pie chart from being filled if there is no table.
-        if (len(self.tag_dict) > 0):
-            self.main_widget.fill_pie_chart(self.tag_dict)
+        # self.calculate_tag_costs()
+        # # Prevent pie chart from being filled if there is no table.
+        # if (len(self.tag_dict) > 0):
+        #     self.main_widget.fill_pie_chart(self.tag_dict)
 
-        # Create shortcuts.
-        tmp = QKeySequence("Ctrl+Return")
-        self.enteritem_shortcut = QShortcut(tmp, self.main_widget, self.save_to_file)
-        self.main_widget.add_button.clicked.connect(self.insert_row)
+        # # Create shortcuts.
+        # tmp = QKeySequence("Ctrl+Return")
+        # self.enteritem_shortcut = QShortcut(tmp, self.main_widget, self.save_to_file)
+        # self.main_widget.add_button.clicked.connect(self.insert_row)
          
-
-    def fill_table(self):
-        self.main_widget.table_widget.setHorizontalHeaderLabels(self.cols_names)
-        
-        # Set entries.
-        for i in range(self.rows):
-            for j in range(len(self.cols_names)):
-                tmp_item = QTableWidgetItem(str(self.data.iat[i, j]))
-                self.main_widget.table_widget.setItem(i, j, tmp_item)
-    
     def initialize_tag_costs_dict(self):
         self.tag_dict = {}
         for row in range(self.rows):
