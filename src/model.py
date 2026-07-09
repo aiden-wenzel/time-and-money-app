@@ -1,8 +1,8 @@
 import pandas as pd
 
 class FinancialModel:
-    def __init__(self, file_path: str):
-        self.col_names = ["Name", "Store", "Price", "Date", "Tag"]
+    def __init__(self, file_path: str, col_names: list[str]):
+        self.col_names = col_names
         self.data = pd.read_csv(file_path)
     
     def get_num_rows(self) -> int:
@@ -41,6 +41,8 @@ class FinancialModel:
 
         return list(unique_tags)
 
-
     def save_to_file(self, file_path: str) -> None:
-        pass
+        self.data.to_csv(file_path, index=False)
+    
+    def get_data(self) -> pd.DataFrame:
+        return self.data
