@@ -1,17 +1,17 @@
 import pandas as pd
 
 class FinancialModel:
-    def __init__(self, file_path):
+    def __init__(self, file_path: str):
         self.col_names = ["Name", "Store", "Price", "Date", "Tag"]
         self.data = pd.read_csv(file_path)
     
-    def get_num_rows(self):
+    def get_num_rows(self) -> int:
         return self.data.shape[0]
     
-    def get_num_cols(self):
+    def get_num_cols(self) -> int:
         return self.data.shape[1]
     
-    def add_entry(self, entry : list):
+    def add_entry(self, entry: list) -> None:
         tmp_entry = pd.DataFrame([entry], columns=self.col_names)
         self.data = pd.concat([self.data, tmp_entry], ignore_index=True)
 
@@ -30,7 +30,7 @@ class FinancialModel:
 
         return cost_dict
 
-    def get_unique_tags(self):
+    def get_unique_tags(self) -> list:
         """
         Return a list containing the unique tags in data.
         """
@@ -42,5 +42,5 @@ class FinancialModel:
         return list(unique_tags)
 
 
-    def save_to_file(self, file_path):
+    def save_to_file(self, file_path: str) -> None:
         pass
