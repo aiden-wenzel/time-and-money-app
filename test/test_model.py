@@ -9,8 +9,7 @@ def test_model():
 
     # Basic test
     file_path = dir_path + "/data/money_data.csv"
-    col_names = ["Name", "Store", "Price", "Date", "Tag"]
-    financial_model = FinancialModel(file_path, col_names)
+    financial_model = FinancialModel(file_path)
     assert financial_model.get_num_rows() == 4
     assert financial_model.get_num_cols() == 5
 
@@ -32,7 +31,7 @@ def test_model():
     assert actual_cost_dict == expected_cost_dict
 
     # Test adding a new entry.
-    new_entry = ["Coney", "Leo's", 6.50, "2026-05-06", "Dining"]
+    new_entry = ["Coney", "Leo's", "6.50", "2026-05-06", "Dining"]
     financial_model.add_entry(new_entry)
     actual_cost_dict = financial_model.calculate_tag_costs()
     expected_cost_dict = {

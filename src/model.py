@@ -1,9 +1,21 @@
 import pandas as pd
 
+class FormatError(Exception):
+    '''Raised when an input to the financial model is not formatted correctly'''
+
 class FinancialModel:
-    def __init__(self, file_path: str, col_names: list[str]):
-        self.col_names = col_names
+    def __init__(self, file_path: str):
         self.data = pd.read_csv(file_path)
+        self.column_names = self.data.columns
+        for i in range(len(self.column_names)):
+            if self.column_names[i] == "Price":
+                self.price_column = i
+            elif self.column_names[i] == "Date":
+                self.date_column = i
+        
+        # Set the datatypes
+        self.data["Price"].astype(float)
+        self.data["Date"] = pd.to_datetime(self.data["Date"])
     
     def get_num_rows(self) -> int:
         return self.data.shape[0]
@@ -11,8 +23,20 @@ class FinancialModel:
     def get_num_cols(self) -> int:
         return self.data.shape[1]
     
-    def add_entry(self, entry: list) -> None:
-        tmp_entry = pd.DataFrame([entry], columns=self.col_names)
+    def add_entry(self, entry: list[str]) -> None:
+        tmp_entry = []
+        try:
+            for i in range(len(entry)):
+                if i == self.price_column:
+                    tmp_entry.append(float(entry[i]))
+                elif i == self.date_column:
+                    tmp_entry.append(pd.Timestamp(entry[i]))
+                else:
+                    tmp_entry.append(entry[i])
+        except:
+            raise FormatError("Error: format not correct")
+
+        tmp_entry = pd.DataFrame([tmp_entry], columns=self.column_names)
         self.data = pd.concat([self.data, tmp_entry], ignore_index=True)
 
     def delete_rows(self, rows_to_delete):
@@ -26,7 +50,11 @@ class FinancialModel:
         cost_dict = {}
         for tag in tags:
             tmp_tag_only_df = self.data[self.data["Tag"] == tag]
-            cost_dict[tag] = tmp_tag_only_df["Price"].sum()
+            tmp_sum = 0
+            for i in range(len(tmp_tag_only_df["Price"])):
+                tmp_sum += tmp_tag_only_df["Price"].iloc[i]
+
+            cost_dict[tag] = tmp_sum
 
         return cost_dict
 
