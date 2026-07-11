@@ -1,9 +1,10 @@
+import pandas as pd
 from PySide6.QtWidgets import QApplication, QTableWidget, QTableWidgetItem, QPushButton, QWidget, QGridLayout
 from PySide6.QtCore import Slot, Signal
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg, NavigationToolbar2QT
 from matplotlib.figure import Figure
+
 from model import FinancialModel
-import pandas as pd
 
 class MainWidget(QWidget):
 

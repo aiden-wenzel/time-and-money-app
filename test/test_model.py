@@ -1,14 +1,15 @@
 import os
+
 import pytest
+
 from model import FinancialModel
 
-
-dir_path = os.path.dirname(os.path.realpath(__file__))
+DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 
 def test_model():
 
     # Basic test
-    file_path = dir_path + "/data/money_data.csv"
+    file_path = DIR_PATH + "/data/money_data.csv"
     financial_model = FinancialModel(file_path)
     assert financial_model.get_num_rows() == 4
     assert financial_model.get_num_cols() == 5

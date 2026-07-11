@@ -1,16 +1,12 @@
-from MainWidget import MainWidget
-from ErrorPopup import ErrorPopup
-from model import FinancialModel
-from PySide6.QtWidgets import QApplication, QTableWidgetItem, QDialog
-from PySide6.QtCore import Slot, QKeyCombination, Qt, Signal, QObject
-from PySide6.QtGui import QShortcut, QKeySequence 
-from model import FormatError
-import pandas as pd
 import sys
 import os
 
-class EmptyCellError(Exception):
-    """Raised when a cell is empty with type NoneType or an empty string."""
+import pandas as pd
+from PySide6.QtWidgets import QApplication
+from PySide6.QtCore import Slot, Signal, QObject
+
+from MainWidget import MainWidget
+from model import FinancialModel, FormatError
 
 class App(QObject):
     data_changed = Signal(FinancialModel, name="Data Changed")
