@@ -2,8 +2,9 @@ from MainWidget import MainWidget
 from ErrorPopup import ErrorPopup
 from model import FinancialModel
 from PySide6.QtWidgets import QApplication, QTableWidgetItem, QDialog
-from PySide6.QtCore import Slot, QKeyCombination, Qt
+from PySide6.QtCore import Slot, QKeyCombination, Qt, Signal, QObject
 from PySide6.QtGui import QShortcut, QKeySequence 
+from model import FormatError
 import pandas as pd
 import sys
 import os
@@ -11,8 +12,11 @@ import os
 class EmptyCellError(Exception):
     """Raised when a cell is empty with type NoneType or an empty string."""
 
-class App:
+class App(QObject):
+    data_changed = Signal(pd.DataFrame, name="Data Changed")
+
     def __init__(self, expense_data_dir: str):
+        super().__init__()
         if not os.path.exists(expense_data_dir):
             os.mkdir(expense_data_dir)
 
@@ -23,15 +27,15 @@ class App:
             tmp_df = pd.DataFrame(columns=self.col_names)
             tmp_df.to_csv(self.expense_data_path, index=False)
         
-        self.finance_model = FinancialModel(self.expense_data_path, self.col_names)
+        self.finance_model = FinancialModel(self.expense_data_path)
 
         # Create table
         self.app = QApplication(sys.argv)
         self.main_widget = MainWidget(self.col_names)
-        print(self.finance_model.get_data())
         self.main_widget.fill_table(self.finance_model.get_data())
 
-        # #self.main_widget.add_button.clicked.connect(self.insert_row)
+        self.main_widget.add_entry.connect(self.insert_row)
+        self.data_changed.connect(self.main_widget.refresh_table)
         # self.main_widget.save_button.clicked.connect(self.save_to_file)
         # self.main_widget.delete_button.clicked.connect(self.delete_selected_items)
 
@@ -52,82 +56,27 @@ class App:
         # self.enteritem_shortcut = QShortcut(tmp, self.main_widget, self.save_to_file)
         # self.main_widget.add_button.clicked.connect(self.insert_row)
          
-    def initialize_tag_costs_dict(self):
-        self.tag_dict = {}
-        for row in range(self.rows):
-            tag_item = self.main_widget.table_widget.item(row, self.tag_index)
-            self.tag_dict[tag_item.text()] = 0.0
+    # def calculate_tag_costs(self):
+    #     # Reset the dictionary.
+    #     self.initialize_tag_costs_dict()
 
-    def calculate_tag_costs(self):
-        # Reset the dictionary.
-        self.initialize_tag_costs_dict()
-
-        for row in range(self.rows):
-            tag_item = self.main_widget.table_widget.item(row, self.tag_index)
-            cost_item = self.main_widget.table_widget.item(row, self.amount_index)
-            self.tag_dict[tag_item.text()] += float(cost_item.text())
-        # Round to 2 decimal places.
-        for key in self.tag_dict:
-            self.tag_dict[key] = round(self.tag_dict[key], 2)
-
+    #     for row in range(self.rows):
+    #         tag_item = self.main_widget.table_widget.item(row, self.tag_index)
+    #         cost_item = self.main_widget.table_widget.item(row, self.amount_index)
+    #         self.tag_dict[tag_item.text()] += float(cost_item.text())
+    #     # Round to 2 decimal places.
+    #     for key in self.tag_dict:
+    #         self.tag_dict[key] = round(self.tag_dict[key], 2)
+    
     @Slot()
-    def insert_row(self):
-        """
-        Insert values from the entry fields into the table.
-        """
-        self.main_widget.table_widget.insertRow(self.rows)
-        self.rows+=1
-        for col in range(self.cols):
-            tmp_item = self.main_widget.add_entry_table.item(0, col)
-            self.main_widget.table_widget.setItem(self.rows-1, col, QTableWidgetItem(tmp_item.text()))
-
-        self.main_widget.add_entry_table.clearContents()
-
-    @Slot()
-    def save_to_file(self):
-        tmp_data = []
+    def insert_row(self, entry):
         try:
-            for row in range(self.rows):
-                tmp_row = []
-                for col in range(self.cols):
-                    item = self.main_widget.table_widget.item(row, col)
-                    if item is None:
-                        raise EmptyCellError("Cannot have empty cell!")
-                    elif item.text() == "":
-                        raise EmptyCellError("Cannot have empty cell!")
-                    else:
-                        tmp_row.append(item.text())
-                
-                tmp_data.append(tmp_row)
+            self.finance_model.add_entry(entry)
+        except FormatError:
+            print("Entry not well formed! Double check price and date are valid!")
+            return 
 
-        except EmptyCellError:
-            dlg = ErrorPopup(self.main_widget)
-            dlg.exec()
-            return
-
-        save_df = pd.DataFrame(data=tmp_data, columns=self.cols_names)
-        print(f"Saving to: {self.expense_data_path}")
-        save_df.to_csv(self.expense_data_path, index=False)
-
-        # Also refresh the chart!
-        self.refresh_pie_chart()
-    
-    @Slot()
-    def delete_selected_items(self):
-        selected_items = self.main_widget.table_widget.selectedIndexes()
-        row_set = set({})
-        for item in selected_items:
-            row_set.add(item.row())
-        selected_rows = list(reversed(sorted(row_set)))
-        for row in selected_rows:
-            self.main_widget.table_widget.removeRow(row)
-            self.rows -= 1
-    
-    @Slot()
-    def refresh_pie_chart(self):
-        self.calculate_tag_costs()
-        if (len(self.tag_dict) > 0):
-            self.main_widget.fill_pie_chart(self.tag_dict)
+        self.data_changed.emit(self.finance_model.data)
 
     def run(self):
         self.main_widget.show()

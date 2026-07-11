@@ -1,10 +1,13 @@
 from PySide6.QtWidgets import QApplication, QTableWidget, QTableWidgetItem, QPushButton, QWidget, QGridLayout
-from PySide6.QtCore import Slot
+from PySide6.QtCore import Slot, Signal
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg, NavigationToolbar2QT
 from matplotlib.figure import Figure
 import pandas as pd
 
 class MainWidget(QWidget):
+
+    add_entry = Signal(list, name="Adding Entry")
+
     def __init__(self, col_names: list[str]):
 
         super().__init__()
@@ -28,6 +31,7 @@ class MainWidget(QWidget):
 
         # Create buttons.
         self.add_button = QPushButton("Add")
+        self.add_button.clicked.connect(self.add_row)
         self.save_button = QPushButton("Save")
         self.delete_button = QPushButton("Delete")
 
@@ -51,7 +55,7 @@ class MainWidget(QWidget):
         self.ax.legend(labels)
         self.pie_canvas.draw()
 
-    def fill_table(self, entries: pd.df):
+    def fill_table(self, entries: pd.DataFrame):
         
         num_rows = entries.shape[0]
         num_cols = entries.shape[1]
@@ -62,3 +66,24 @@ class MainWidget(QWidget):
             for j in range(num_cols):
                 tmp_item = QTableWidgetItem(str(entries.iat[i, j]))
                 self.table_widget.setItem(i, j, tmp_item)
+    
+    @Slot()
+    def add_row(self):
+        items = []
+        try:
+            for i in range(len(self.col_names)):
+                tmp_item = self.add_entry_table.item(0, i)
+                items.append(tmp_item.text())
+        except AttributeError:
+            print("Cannot have empty cells!")
+            return
+        
+        self.add_entry.emit(items)
+    
+    @Slot()
+    def refresh_table(self, entries: pd.DataFrame):
+        num_rows = self.table_widget.rowCount()
+        for i in range(num_rows):
+            self.table_widget.removeRow(0)
+
+        self.fill_table(entries)
