@@ -13,7 +13,7 @@ class EmptyCellError(Exception):
     """Raised when a cell is empty with type NoneType or an empty string."""
 
 class App(QObject):
-    data_changed = Signal(pd.DataFrame, name="Data Changed")
+    data_changed = Signal(FinancialModel, name="Data Changed")
 
     def __init__(self, expense_data_dir: str):
         super().__init__()
@@ -33,9 +33,11 @@ class App(QObject):
         self.app = QApplication(sys.argv)
         self.main_widget = MainWidget(self.col_names)
         self.main_widget.fill_table(self.finance_model.get_data())
+        self.main_widget.fill_pie_chart(self.finance_model.calculate_tag_costs())
 
         self.main_widget.add_entry.connect(self.insert_row)
         self.data_changed.connect(self.main_widget.refresh_table)
+        self.main_widget.save_to_file.connect(self.save_to_file)
         # self.main_widget.save_button.clicked.connect(self.save_to_file)
         # self.main_widget.delete_button.clicked.connect(self.delete_selected_items)
 
@@ -76,7 +78,11 @@ class App(QObject):
             print("Entry not well formed! Double check price and date are valid!")
             return 
 
-        self.data_changed.emit(self.finance_model.data)
+        self.data_changed.emit(self.finance_model)
+    
+    @Slot()
+    def save_to_file(self):
+        self.finance_model.save_to_file(self.expense_data_path)
 
     def run(self):
         self.main_widget.show()

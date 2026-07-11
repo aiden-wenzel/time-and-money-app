@@ -2,11 +2,13 @@ from PySide6.QtWidgets import QApplication, QTableWidget, QTableWidgetItem, QPus
 from PySide6.QtCore import Slot, Signal
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg, NavigationToolbar2QT
 from matplotlib.figure import Figure
+from model import FinancialModel
 import pandas as pd
 
 class MainWidget(QWidget):
 
     add_entry = Signal(list, name="Adding Entry")
+    save_to_file = Signal(name="Save to File")
 
     def __init__(self, col_names: list[str]):
 
@@ -33,6 +35,7 @@ class MainWidget(QWidget):
         self.add_button = QPushButton("Add")
         self.add_button.clicked.connect(self.add_row)
         self.save_button = QPushButton("Save")
+        self.save_button.clicked.connect(self.save_to_file.emit)
         self.delete_button = QPushButton("Delete")
 
         self.layout.addWidget(self.add_button, 2, 1)
@@ -81,9 +84,14 @@ class MainWidget(QWidget):
         self.add_entry.emit(items)
     
     @Slot()
-    def refresh_table(self, entries: pd.DataFrame):
+    def refresh_table(self, model: FinancialModel):
         num_rows = self.table_widget.rowCount()
         for i in range(num_rows):
             self.table_widget.removeRow(0)
 
-        self.fill_table(entries)
+        self.fill_table(model.get_data())
+        self.fill_pie_chart(model.calculate_tag_costs())
+
+    @Slot()
+    def request_save(self):
+        self.save_to_file.emit()
