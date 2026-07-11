@@ -38,38 +38,8 @@ class App(QObject):
         self.main_widget.add_entry.connect(self.insert_row)
         self.data_changed.connect(self.main_widget.refresh_table)
         self.main_widget.save_to_file.connect(self.save_to_file)
-        # self.main_widget.save_button.clicked.connect(self.save_to_file)
         # self.main_widget.delete_button.clicked.connect(self.delete_selected_items)
 
-        # # Find the tag column and price column.
-        # for i in range(self.cols):
-        #     if self.main_widget.table_widget.horizontalHeaderItem(i).text() == "Tag":
-        #         self.tag_index = i
-        #     elif self.main_widget.table_widget.horizontalHeaderItem(i).text() == "Price":
-        #         self.amount_index = i
-
-        # self.calculate_tag_costs()
-        # # Prevent pie chart from being filled if there is no table.
-        # if (len(self.tag_dict) > 0):
-        #     self.main_widget.fill_pie_chart(self.tag_dict)
-
-        # # Create shortcuts.
-        # tmp = QKeySequence("Ctrl+Return")
-        # self.enteritem_shortcut = QShortcut(tmp, self.main_widget, self.save_to_file)
-        # self.main_widget.add_button.clicked.connect(self.insert_row)
-         
-    # def calculate_tag_costs(self):
-    #     # Reset the dictionary.
-    #     self.initialize_tag_costs_dict()
-
-    #     for row in range(self.rows):
-    #         tag_item = self.main_widget.table_widget.item(row, self.tag_index)
-    #         cost_item = self.main_widget.table_widget.item(row, self.amount_index)
-    #         self.tag_dict[tag_item.text()] += float(cost_item.text())
-    #     # Round to 2 decimal places.
-    #     for key in self.tag_dict:
-    #         self.tag_dict[key] = round(self.tag_dict[key], 2)
-    
     @Slot()
     def insert_row(self, entry):
         try:
