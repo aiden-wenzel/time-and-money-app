@@ -1,6 +1,7 @@
 import os
 
 import pytest
+import pandas as pd
 
 from model import FinancialModel
 
@@ -50,4 +51,15 @@ def test_model():
         "Groceries": 8.49 + 5.99 + 130.27,
     }
 
-    assert actual_cost_dict == expected_cost_dict
+    assert actual_cost_dict == expected_cost_dict    
+
+def test_date_range():
+    file_path = DIR_PATH + "/data/money_data.csv"
+    financial_model = FinancialModel(file_path)
+
+    # Get data within the month of April.
+    current_day = pd.Timestamp("2026-04-30")
+    april_finances = financial_model.get_data_in_date_range(current_day - pd.offsets.MonthBegin(), current_day)
+    assert april_finances.shape[0] == 1
+    assert april_finances["Name"].iat[0] == "Groceries"
+    assert april_finances["Store"].iat[0] == "Meijer"

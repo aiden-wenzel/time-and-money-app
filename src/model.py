@@ -93,3 +93,10 @@ class FinancialModel:
     
     def get_data(self) -> pd.DataFrame:
         return self.data
+    
+    def get_data_in_date_range(
+        self, 
+        start_date: pd.Timestamp, 
+        end_date: pd.Timestamp
+    ) -> pd.DataFrame:
+        return self.data[(start_date <= self.data["Date"]) & (self.data["Date"] <= end_date)]
