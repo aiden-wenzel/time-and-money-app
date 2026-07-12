@@ -91,7 +91,7 @@ class FinancialModel:
     def save_to_file(self, file_path: str) -> None:
         self.data.to_csv(file_path, index=False)
     
-    def get_data(self) -> pd.DataFrame:
+    def get_all_data(self) -> pd.DataFrame:
         return self.data
     
     def get_data_in_date_range(

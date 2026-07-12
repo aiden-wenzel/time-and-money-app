@@ -39,7 +39,7 @@ class App(QObject):
         # Create table
         self.app = QApplication(sys.argv)
         self.main_widget = MainWidget(self.col_names)
-        self.main_widget.fill_table(self.finance_model.get_data())
+        self.main_widget.fill_table(self.finance_model.get_all_data())
         self.main_widget.fill_pie_chart(self.finance_model.calculate_tag_costs())
 
         self.main_widget.add_entry.connect(self.insert_row)
@@ -67,8 +67,8 @@ class App(QObject):
     def remove_selected_entries(self, entries):
         self.finance_model.delete_entries(entries) 
         self.data_changed.emit(self.finance_model)
-        print("removing entries")
 
     def run(self):
+        logger.info("Running application.")
         self.main_widget.show()
         self.app.exec()

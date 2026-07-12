@@ -92,7 +92,7 @@ class MainWidget(QWidget):
         for i in range(num_rows):
             self.table_widget.removeRow(0)
 
-        self.fill_table(model.get_data())
+        self.fill_table(model.get_all_data())
         self.fill_pie_chart(model.calculate_tag_costs())
 
     @Slot()
