@@ -34,6 +34,7 @@ class App(QObject):
         self.main_widget.add_entry.connect(self.insert_row)
         self.data_changed.connect(self.main_widget.refresh_table)
         self.main_widget.save_to_file.connect(self.save_to_file)
+        self.main_widget.request_delete_sig.connect(self.remove_selected_entries)
         # self.main_widget.delete_button.clicked.connect(self.delete_selected_items)
 
     @Slot()
@@ -49,6 +50,11 @@ class App(QObject):
     @Slot()
     def save_to_file(self):
         self.finance_model.save_to_file(self.expense_data_path)
+    
+    @Slot()
+    def remove_selected_entries(self, entries):
+        self.finance_model.delete_entries(entries) 
+        print("removing entries")
 
     def run(self):
         self.main_widget.show()

@@ -10,6 +10,7 @@ class MainWidget(QWidget):
 
     add_entry = Signal(list, name="Adding Entry")
     save_to_file = Signal(name="Save to File")
+    request_delete_sig = Signal(list, name="Delete Rows")
 
     def __init__(self, col_names: list[str]):
 
@@ -38,6 +39,7 @@ class MainWidget(QWidget):
         self.save_button = QPushButton("Save")
         self.save_button.clicked.connect(self.save_to_file.emit)
         self.delete_button = QPushButton("Delete")
+        self.delete_button.clicked.connect(self.request_delete)
 
         self.layout.addWidget(self.add_button, 2, 1)
         self.layout.addWidget(self.save_button, 3, 1)
@@ -96,3 +98,26 @@ class MainWidget(QWidget):
     @Slot()
     def request_save(self):
         self.save_to_file.emit()
+
+    @Slot()
+    def request_delete(self):
+
+        selected_items = self.table_widget.selectedIndexes()
+        row_set = set({})
+        for item in selected_items:
+            row_set.add(item.row())
+
+        rows = []
+        for row in row_set:
+            rows.append(self.get_row(row))
+        
+        self.request_delete_sig.emit(rows)
+
+    def get_row(self, row: int) -> list[str]:
+        num_cols = self.table_widget.columnCount()
+        tmp_list = []
+        for col in range(num_cols):
+            tmp_item = self.table_widget.item(row, col)
+            tmp_list.append(tmp_item.text())
+        
+        return tmp_list

@@ -1,3 +1,5 @@
+from math import isclose
+
 import pandas as pd
 
 class FormatError(Exception):
@@ -41,6 +43,23 @@ class FinancialModel:
 
     def delete_rows(self, rows_to_delete):
         self.data.drop(index=rows_to_delete, inplace=True)
+    
+    def delete_entries(self, entries_to_delete: list[str]) -> None:
+        print(entries_to_delete)
+        for entry in entries_to_delete:
+            # TODO: Prevent these from being hardcoded.
+            name = entry[0]
+            store = entry[1]
+            price = float(entry[2])
+            date = entry[3]
+            tag = entry[4]
+            series_to_remove = self.data[(self.data["Name"] == name) 
+                            & (self.data["Store"] == store) 
+                            & (self.data["Price"] == price)
+                            & (self.data["Date"] == date)
+                            & (self.data["Tag"] == tag)]
+            index_to_remove = series_to_remove.index
+            self.data.drop(index_to_remove, inplace=True)
 
     def calculate_tag_costs(self) -> dict[str, float]:
         """
