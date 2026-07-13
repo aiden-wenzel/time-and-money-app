@@ -1,10 +1,18 @@
+import logging
+
 import pandas as pd
-from PySide6.QtWidgets import QApplication, QTableWidget, QTableWidgetItem, QPushButton, QWidget, QGridLayout
+from PySide6.QtWidgets import (
+    QApplication, QTableWidget, QTableWidgetItem, QPushButton, QWidget, QGridLayout, 
+    QLineEdit, QLabel
+)
 from PySide6.QtCore import Slot, Signal
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg, NavigationToolbar2QT
 from matplotlib.figure import Figure
 
 from model import FinancialModel
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 class MainWidget(QWidget):
 
@@ -25,6 +33,8 @@ class MainWidget(QWidget):
         self.layout.setColumnMinimumWidth(2, 500)
         self.layout.addWidget(self.table_widget, 1, 1)
 
+        # Create an input entry widget.
+        self.inputWidget = InputWidget(self.col_names)
 
         # Create pie chart figure.
         # Checkout https://www.youtube.com/watch?v=AHhcwFPQlfQ for a good video on how to do this.
@@ -35,7 +45,7 @@ class MainWidget(QWidget):
 
         # Create buttons.
         self.add_button = QPushButton("Add")
-        self.add_button.clicked.connect(self.add_row)
+        self.add_button.clicked.connect(self.inputWidget.show)
         self.save_button = QPushButton("Save")
         self.save_button.clicked.connect(self.save_to_file.emit)
         self.delete_button = QPushButton("Delete")
@@ -47,6 +57,7 @@ class MainWidget(QWidget):
 
         self.add_entry_table = QTableWidget(1, len(self.col_names))
         self.layout.addWidget(self.add_entry_table, 2, 2, 3, 1)
+
     
     def fill_pie_chart(self, tag_cost_dict: dict):
 
@@ -72,19 +83,6 @@ class MainWidget(QWidget):
             for j in range(num_cols):
                 tmp_item = QTableWidgetItem(str(entries.iat[i, j]))
                 self.table_widget.setItem(i, j, tmp_item)
-    
-    @Slot()
-    def add_row(self):
-        items = []
-        try:
-            for i in range(len(self.col_names)):
-                tmp_item = self.add_entry_table.item(0, i)
-                items.append(tmp_item.text())
-        except AttributeError:
-            print("Cannot have empty cells!")
-            return
-        
-        self.add_entry.emit(items)
     
     @Slot()
     def refresh_table(self, model: FinancialModel):
@@ -121,3 +119,47 @@ class MainWidget(QWidget):
             tmp_list.append(tmp_item.text())
         
         return tmp_list
+
+class InputWidget(QWidget):
+
+    forward_data_sig = Signal(list, name="Forward data")
+    def __init__(self, column_names: list[str]):
+        super().__init__()
+        self.layout = QGridLayout(self)
+        self.column_names = column_names
+
+        self.input_lines = {}
+        self.input_col = 1
+        self.label_col = 0
+        for i in range(len(column_names)):
+            self.input_lines[column_names[i]] = QLineEdit(parent=self)
+            self.layout.addWidget(self.input_lines[column_names[i]], i, self.input_col)
+
+            description_tmp = QLabel(f"{column_names[i]}: ")
+            self.layout.addWidget(description_tmp, i, self.label_col)
+
+        button_width = 50
+        self.cancel_button = QPushButton("Cancel")
+        self.cancel_button.setMaximumWidth(button_width)
+        self.layout.addWidget(self.cancel_button, len(column_names), 0)
+
+        self.cancel_button.clicked.connect(self.close)
+
+        self.done_button = QPushButton("Ok")
+        self.done_button.setMaximumWidth(button_width)
+        self.layout.addWidget(self.done_button, len(column_names), 1)
+        self.done_button.clicked.connect(self.forward_data)
+    
+    @Slot()
+    def forward_data(self):
+        out = []
+        for name in self.column_names:
+            tmp_text = self.input_lines[name].text()
+            if tmp_text == "":
+                logger.warning(f"Cannot have empty fields! Try again.")
+                return
+            else:
+                out.append(tmp_text)
+
+        logger.info(f"Forwarding entry: {out} to main application.")
+        self.forward_data_sig.emit(out)        

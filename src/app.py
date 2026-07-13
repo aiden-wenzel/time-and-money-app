@@ -6,7 +6,7 @@ import pandas as pd
 from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import Slot, Signal, QObject
 
-from MainWidget import MainWidget
+from MainWidget import MainWidget, InputWidget
 from model import FinancialModel, FormatError
 
 logger = logging.getLogger(__name__)
@@ -46,7 +46,6 @@ class App(QObject):
         self.data_changed.connect(self.main_widget.refresh_table)
         self.main_widget.save_to_file.connect(self.save_to_file)
         self.main_widget.request_delete_sig.connect(self.remove_selected_entries)
-        # self.main_widget.delete_button.clicked.connect(self.delete_selected_items)
 
     @Slot()
     def insert_row(self, entry):
