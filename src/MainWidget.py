@@ -56,6 +56,9 @@ class MainWidget(QWidget):
         self.layout.addWidget(self.delete_button, 4, 1)
     
     def fill_pie_chart(self, tag_cost_dict: dict):
+        if len(tag_cost_dict) == 0:
+            logger.info("No data. Skip filling pie chart.")
+            return
 
         self.ax.clear()
         x = list(tag_cost_dict.values())
