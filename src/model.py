@@ -29,6 +29,9 @@ class FinancialModel:
         tmp_entry = []
         try:
             for i in range(len(entry)):
+                if entry[i] == "":
+                    raise FormatError("Error: cannot have empty entries.")
+
                 if i == self.price_column:
                     tmp_entry.append(float(entry[i]))
                 elif i == self.date_column:

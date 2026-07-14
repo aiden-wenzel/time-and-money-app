@@ -54,10 +54,6 @@ class MainWidget(QWidget):
         self.layout.addWidget(self.add_button, 2, 1)
         self.layout.addWidget(self.save_button, 3, 1)
         self.layout.addWidget(self.delete_button, 4, 1)
-
-        self.add_entry_table = QTableWidget(1, len(self.col_names))
-        self.layout.addWidget(self.add_entry_table, 2, 2, 3, 1)
-
     
     def fill_pie_chart(self, tag_cost_dict: dict):
 
@@ -86,6 +82,7 @@ class MainWidget(QWidget):
     
     @Slot()
     def refresh_table(self, model: FinancialModel):
+        logger.info("Refreshing table.")
         num_rows = self.table_widget.rowCount()
         for i in range(num_rows):
             self.table_widget.removeRow(0)
@@ -155,11 +152,7 @@ class InputWidget(QWidget):
         out = []
         for name in self.column_names:
             tmp_text = self.input_lines[name].text()
-            if tmp_text == "":
-                logger.warning(f"Cannot have empty fields! Try again.")
-                return
-            else:
-                out.append(tmp_text)
+            out.append(tmp_text)
 
         logger.info(f"Forwarding entry: {out} to main application.")
         self.forward_data_sig.emit(out)        

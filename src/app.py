@@ -42,7 +42,7 @@ class App(QObject):
         self.main_widget.fill_table(self.finance_model.get_all_data())
         self.main_widget.fill_pie_chart(self.finance_model.calculate_tag_costs())
 
-        self.main_widget.add_entry.connect(self.insert_row)
+        self.main_widget.inputWidget.forward_data_sig.connect(self.insert_row)
         self.data_changed.connect(self.main_widget.refresh_table)
         self.main_widget.save_to_file.connect(self.save_to_file)
         self.main_widget.request_delete_sig.connect(self.remove_selected_entries)
@@ -50,11 +50,13 @@ class App(QObject):
     @Slot()
     def insert_row(self, entry):
         try:
+            logger.info(f"Inserting: {entry} into finance model.")
             self.finance_model.add_entry(entry)
         except FormatError:
-            logger.error("Entry not well formed! Double check price and date are valid!")
+            logger.warning("Entry not well formed! Double check price and date are valid!")
             return 
 
+        logger.info("Requesting refresh.")
         self.data_changed.emit(self.finance_model)
     
     @Slot()
