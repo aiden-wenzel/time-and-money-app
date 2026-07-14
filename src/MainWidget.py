@@ -26,6 +26,9 @@ class MainWidget(QWidget):
         self.layout = QGridLayout(self)
         self.col_names = col_names
 
+        self.setWindowTitle("<Insert cool app name>")
+        print(self.windowTitle())
+
         # Create table.
         self.table_widget = QTableWidget(0, len(self.col_names))
         self.table_widget.setHorizontalHeaderLabels(self.col_names)
@@ -127,6 +130,8 @@ class InputWidget(QWidget):
         super().__init__()
         self.layout = QGridLayout(self)
         self.column_names = column_names
+
+        self.setWindowTitle("Input")
 
         self.input_lines = {}
         self.input_col = 1
