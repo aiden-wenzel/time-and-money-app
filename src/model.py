@@ -1,5 +1,3 @@
-from math import isclose
-
 import pandas as pd
 
 class FormatError(Exception):
@@ -48,7 +46,6 @@ class FinancialModel:
         self.data.drop(index=rows_to_delete, inplace=True)
     
     def delete_entries(self, entries_to_delete: list[str]) -> None:
-        print(entries_to_delete)
         for entry in entries_to_delete:
             # TODO: Prevent these from being hardcoded.
             name = entry[0]

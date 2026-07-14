@@ -96,7 +96,7 @@ class MainWidget(QWidget):
 
     @Slot()
     def request_delete(self):
-
+        logger.info("Requesting delete.")
         selected_items = self.table_widget.selectedIndexes()
         row_set = set({})
         for item in selected_items:

@@ -66,6 +66,10 @@ class App(QObject):
     
     @Slot()
     def remove_selected_entries(self, entries):
+        logger.info("Deleting: ")
+        for entry in entries: 
+            logger.info(entry)
+
         self.finance_model.delete_entries(entries) 
         self.data_changed.emit(self.finance_model)
 
