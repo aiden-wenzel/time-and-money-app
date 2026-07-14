@@ -23,7 +23,7 @@ class App(QObject):
             os.mkdir(expense_data_dir)
 
         expense_file_name = "money_data.csv"
-        self.expense_data_path = expense_data_dir + expense_file_name
+        self.expense_data_path = os.path.join(expense_data_dir, expense_file_name)
         self.col_names = ["Name", "Store", "Price", "Date", "Tag"]
 
         logger.info(f"Checking for {self.expense_data_path}.")
