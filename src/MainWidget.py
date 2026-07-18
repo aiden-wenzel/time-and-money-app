@@ -3,7 +3,7 @@ import logging
 import pandas as pd
 from PySide6.QtWidgets import (
     QApplication, QTableWidget, QTableWidgetItem, QPushButton, QWidget, QGridLayout, 
-    QLineEdit, QLabel
+    QLineEdit, QLabel, QMessageBox
 )
 from PySide6.QtCore import Slot, Signal
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg, NavigationToolbar2QT
@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.INFO)
 class MainWidget(QWidget):
 
     add_entry = Signal(list, name="Adding Entry")
-    save_to_file = Signal(name="Save to File")
+    save_to_file_sig = Signal(name="Save to File")
     request_delete_sig = Signal(list, name="Delete Rows")
 
     def __init__(self, col_names: list[str]):
@@ -50,13 +50,30 @@ class MainWidget(QWidget):
         self.add_button = QPushButton("Add")
         self.add_button.clicked.connect(self.inputWidget.show)
         self.save_button = QPushButton("Save")
-        self.save_button.clicked.connect(self.save_to_file.emit)
+        self.save_button.clicked.connect(self.save_to_file_sig.emit)
         self.delete_button = QPushButton("Delete")
         self.delete_button.clicked.connect(self.request_delete)
 
         self.layout.addWidget(self.add_button, 2, 1)
         self.layout.addWidget(self.save_button, 3, 1)
         self.layout.addWidget(self.delete_button, 4, 1)
+    
+    def closeEvent(self, event):
+        reply = QMessageBox.question(
+            self, 
+            'Confirm Exit',
+            "Are you sure you want to quit? Unsaved changes will be lost.",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, 
+            QMessageBox.StandardButton.No
+        )
+
+        if reply == QMessageBox.StandardButton.Yes:
+            logger.info("Widget is closing. Cleaning up resources...")
+            # Perform any save actions or cleanup here
+            event.accept() # Let the window close
+        else:
+            logger.info("Close cancelled.")
+            event.ignore() # Keep the window open!
     
     def fill_pie_chart(self, tag_cost_dict: dict):
         if len(tag_cost_dict) == 0:

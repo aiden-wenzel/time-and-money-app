@@ -44,7 +44,7 @@ class App(QObject):
 
         self.main_widget.inputWidget.forward_data_sig.connect(self.insert_row)
         self.data_changed.connect(self.main_widget.refresh_table)
-        self.main_widget.save_to_file.connect(self.save_to_file)
+        self.main_widget.save_to_file_sig.connect(self.save_to_file)
         self.main_widget.request_delete_sig.connect(self.remove_selected_entries)
 
     @Slot()
