@@ -61,19 +61,21 @@ class FinancialModel:
             index_to_remove = series_to_remove.index
             self.data.drop(index_to_remove, inplace=True)
 
-    def calculate_tag_costs(self) -> dict[str, float]:
+    def calculate_tag_costs(self, date_range: tuple) -> dict[str, float]:
         """
         Return a dictionary of the cost breakdown for each tag. 
         """
         tags = self.get_unique_tags()
+        data = self.get_data_in_date_range(date_range[0], date_range[1])
         cost_dict = {}
         for tag in tags:
-            tmp_tag_only_df = self.data[self.data["Tag"] == tag]
+            tmp_tag_only_df = data[data["Tag"] == tag]
             tmp_sum = 0
             for i in range(len(tmp_tag_only_df["Price"])):
                 tmp_sum += tmp_tag_only_df["Price"].iloc[i]
 
-            cost_dict[tag] = tmp_sum
+            if tmp_sum > 0:
+                cost_dict[tag] = tmp_sum
 
         return cost_dict
 
