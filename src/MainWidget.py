@@ -124,7 +124,7 @@ class MainWidget(QWidget):
         for i in range(num_rows):
             self.table_widget.removeRow(0)
 
-        self.fill_table(model.get_data_in_date_range(date_range[0], date_range[1]))
+        self.fill_table(model.get_data_in_date_range(date_range[0], date_range[1], sorted=True))
         self.fill_pie_chart(model.calculate_tag_costs(date_range))
 
     @Slot()

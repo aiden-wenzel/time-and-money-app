@@ -99,6 +99,11 @@ class FinancialModel:
     def get_data_in_date_range(
         self, 
         start_date: pd.Timestamp, 
-        end_date: pd.Timestamp
+        end_date: pd.Timestamp,
+        sorted = False
     ) -> pd.DataFrame:
-        return self.data[(start_date <= self.data["Date"]) & (self.data["Date"] <= end_date)]
+        selected_data = self.data[(start_date <= self.data["Date"]) & (self.data["Date"] <= end_date)]
+        if sorted:
+            selected_data.sort_values("Date", inplace=True)
+
+        return selected_data
