@@ -19,6 +19,7 @@ class MainWidget(QWidget):
     add_entry = Signal(list, name="Adding Entry")
     save_to_file_sig = Signal(name="Save to File")
     request_delete_sig = Signal(list, name="Delete Rows")
+    set_month_sig = Signal(str)
 
     def __init__(self, col_names: list[str]):
 
@@ -57,6 +58,15 @@ class MainWidget(QWidget):
         self.layout.addWidget(self.add_button, 2, 1)
         self.layout.addWidget(self.save_button, 3, 1)
         self.layout.addWidget(self.delete_button, 4, 1)
+
+
+        self.month_input = QLineEdit()
+        self.set_button = QPushButton("Set month")
+        self.set_button.clicked.connect(self.request_set_month)
+        self.all_time_button = QPushButton("All time")
+        self.layout.addWidget(self.month_input, 2, 2)
+        self.layout.addWidget(self.set_button, 3, 2)
+        self.layout.addWidget(self.all_time_button, 4, 2)
     
     def closeEvent(self, event):
         reply = QMessageBox.question(
@@ -144,6 +154,11 @@ class MainWidget(QWidget):
         
         return tmp_list
 
+    @Slot()
+    def request_set_month(self):
+        input_date = self.month_input.text()
+        self.set_month_sig.emit(input_date)
+
 class InputWidget(QWidget):
 
     forward_data_sig = Signal(list, name="Forward data")
@@ -185,3 +200,4 @@ class InputWidget(QWidget):
 
         logger.info(f"Forwarding entry: {out} to main application.")
         self.forward_data_sig.emit(out)        
+    
