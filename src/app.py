@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 class App(QObject):
-    data_changed = Signal(FinancialModel, name="Data Changed")
+    data_changed = Signal(FinancialModel, tuple, name="Data Changed")
 
     def __init__(self, expense_data_dir: str):
         super().__init__()
@@ -35,12 +35,17 @@ class App(QObject):
             logger.info(f"{self.expense_data_path} found.")
         
         self.finance_model = FinancialModel(self.expense_data_path)
+        self.current_day = pd.Timestamp.today()
+
+        # Default date range is this month
+        self.date_range = (self.current_day - pd.offsets.MonthBegin(), self.current_day + pd.offsets.MonthEnd())
+
+        # self.date_range = (pd.Timestamp.min, pd.Timestamp.max)
 
         # Create table
         self.app = QApplication(sys.argv)
         self.main_widget = MainWidget(self.col_names)
-        self.main_widget.fill_table(self.finance_model.get_all_data())
-        self.main_widget.fill_pie_chart(self.finance_model.calculate_tag_costs())
+        self.main_widget.refresh_table(self.finance_model, self.date_range)
 
         self.main_widget.inputWidget.forward_data_sig.connect(self.insert_row)
         self.data_changed.connect(self.main_widget.refresh_table)
@@ -57,7 +62,7 @@ class App(QObject):
             return 
 
         logger.info("Requesting refresh.")
-        self.data_changed.emit(self.finance_model)
+        self.data_changed.emit(self.finance_model, self.date_range)
     
     @Slot()
     def save_to_file(self):
@@ -71,7 +76,7 @@ class App(QObject):
             logger.info(entry)
 
         self.finance_model.delete_entries(entries) 
-        self.data_changed.emit(self.finance_model)
+        self.data_changed.emit(self.finance_model, self.date_range)
 
     def run(self):
         logger.info("Running application.")

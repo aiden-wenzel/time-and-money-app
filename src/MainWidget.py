@@ -80,6 +80,10 @@ class MainWidget(QWidget):
             logger.info("No data. Skip filling pie chart.")
             return
 
+        for tag in tag_cost_dict:
+            if not tag_cost_dict[tag] > 0:
+                del tag_cost_dict[tag]
+
         self.ax.clear()
         x = list(tag_cost_dict.values())
         labels = list(tag_cost_dict.keys())
@@ -104,14 +108,14 @@ class MainWidget(QWidget):
                 self.table_widget.setItem(i, j, tmp_item)
     
     @Slot()
-    def refresh_table(self, model: FinancialModel):
+    def refresh_table(self, model: FinancialModel, date_range: tuple):
         logger.info("Refreshing table.")
         num_rows = self.table_widget.rowCount()
         for i in range(num_rows):
             self.table_widget.removeRow(0)
 
-        self.fill_table(model.get_all_data())
-        self.fill_pie_chart(model.calculate_tag_costs())
+        self.fill_table(model.get_data_in_date_range(date_range[0], date_range[1]))
+        self.fill_pie_chart(model.calculate_tag_costs(date_range))
 
     @Slot()
     def request_save(self):
