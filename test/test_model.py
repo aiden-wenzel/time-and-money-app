@@ -59,7 +59,10 @@ def test_date_range():
 
     # Get data within the month of April.
     current_day = pd.Timestamp("2026-04-30")
-    april_finances = financial_model.get_data_in_date_range(current_day - pd.offsets.MonthBegin(), current_day)
+    april_finances = financial_model.get_data_in_date_range(
+        pd.offsets.MonthBegin().rollback(current_day), 
+        pd.offsets.MonthEnd().rollforward(current_day),
+    )
     assert april_finances.shape[0] == 1
     assert april_finances["Name"].iat[0] == "Groceries"
     assert april_finances["Store"].iat[0] == "Meijer"
