@@ -10,7 +10,6 @@ from MainWidget import MainWidget, InputWidget
 from model import FinancialModel, FormatError
 
 logger = logging.getLogger(__name__)
-# logging.basicConfig(filename = os.path.dirname(os.path.realpath(__file__)) + "/app.log", level=logging.INFO)
 logging.basicConfig(level=logging.INFO)
 
 class App(QObject):
