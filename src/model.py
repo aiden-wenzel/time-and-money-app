@@ -5,7 +5,7 @@ class FormatError(Exception):
 
 class FinancialModel:
     def __init__(self, file_path: str):
-        self.data = pd.read_csv(file_path)
+        self.data = pd.read_csv(file_path, na_filter=False)
         self.column_names = self.data.columns
         for i in range(len(self.column_names)):
             if self.column_names[i] == "Price":
