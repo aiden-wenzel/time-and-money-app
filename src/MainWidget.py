@@ -80,6 +80,7 @@ class MainWidget(QWidget):
         if reply == QMessageBox.StandardButton.Yes:
             logger.info("Widget is closing. Cleaning up resources...")
             # Perform any save actions or cleanup here
+            self.inputWidget.close()
             event.accept() # Let the window close
         else:
             logger.info("Close cancelled.")
@@ -190,6 +191,7 @@ class InputWidget(QWidget):
         self.done_button.setMaximumWidth(button_width)
         self.layout.addWidget(self.done_button, len(column_names), 1)
         self.done_button.clicked.connect(self.forward_data)
+        self.forward_data_sig.connect(self.clear_inputs)
     
     @Slot()
     def forward_data(self):
@@ -201,3 +203,7 @@ class InputWidget(QWidget):
         logger.info(f"Forwarding entry: {out} to main application.")
         self.forward_data_sig.emit(out)        
     
+    @Slot()
+    def clear_inputs(self):
+        for col_name in self.input_lines:
+            self.input_lines[col_name].clear()
