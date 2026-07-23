@@ -13,9 +13,17 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 class App(QObject):
+    """
+    The middle man which handles signals from the main view and manipulates the underlying financial
+    data. 
+    """
     data_changed = Signal(FinancialModel, tuple, name="Data Changed")
 
     def __init__(self, expense_data_dir: str):
+        """
+        Parameters:
+            expense_data_dir (str): The directory which contains `money_data.csv`
+        """
         super().__init__()
         if not os.path.exists(expense_data_dir):
             logger.info(f"{expense_data_dir} does not exist. Creating new path.")
@@ -54,12 +62,19 @@ class App(QObject):
     
     @Slot()
     def set_all_time(self):
+        """Set the date range state to **all time**."""
         logger.info("Setting date range to all time.")
         self.date_range = (pd.Timestamp.min, pd.Timestamp.max)
         self.data_changed.emit(self.finance_model, self.date_range)
     
     @Slot()
     def set_month_range(self, date: str):
+        """
+        Set the date range state to the month of `date`.
+
+        Parameters:
+            date (str): A properly formated date string `yyyy/mm/dd`.
+        """
         try:
             month = pd.Timestamp(date)
         except:
@@ -72,7 +87,7 @@ class App(QObject):
         self.data_changed.emit(self.finance_model, self.date_range)
 
     @Slot()
-    def insert_row(self, entry):
+    def insert_row(self, entry: list[str]):
         try:
             logger.info(f"Inserting: {entry} into finance model.")
             self.finance_model.add_entry(entry)
