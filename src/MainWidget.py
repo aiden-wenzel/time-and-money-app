@@ -28,7 +28,6 @@ class MainWidget(QWidget):
         self.col_names = col_names
 
         self.setWindowTitle("<Insert cool app name>")
-        print(self.windowTitle())
 
         # Create table.
         self.table_widget = QTableWidget(0, len(self.col_names))
