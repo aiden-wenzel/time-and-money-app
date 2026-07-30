@@ -66,3 +66,19 @@ def test_date_range():
     assert april_finances.shape[0] == 1
     assert april_finances["Name"].iat[0] == "Groceries"
     assert april_finances["Store"].iat[0] == "Meijer"
+
+def test_edit_item():
+    file_path = DIR_PATH + "/data/money_data.csv"
+    financial_model = FinancialModel(file_path)
+    data = financial_model.get_all_data()
+    selection_index = data.loc[data["Name"] == "Groceries"].index
+    col_to_change = "Price"
+    value = 15.0
+    financial_model.edit_item(selection_index, col_to_change, value) 
+
+    pytest.approx(data.loc[selection_index, col_to_change], 15.0)
+
+    try:
+        financial_model.edit_item(selection_index, "Date", 15.0)
+    except TypeError:
+        pass

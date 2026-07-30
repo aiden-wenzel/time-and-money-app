@@ -107,3 +107,25 @@ class FinancialModel:
             selected_data.sort_values("Date", inplace=True)
 
         return selected_data
+
+    def edit_item(
+        self,
+        index: pd.Index,
+        col_name: str,
+        value
+    ) -> None:
+        """
+        Edit a cell in the underlying data.
+
+        Parameters:
+            - `index`: a single pandas index pointing to the row to change
+
+            - `col`: The name of the column to change
+
+            - `value`: The value to attempt to change
+        
+        Raises:
+            - `TypeError` if `value` is not the same type as data in col `col_name`.
+        """
+
+        self.data.loc[index, col_name] = value
