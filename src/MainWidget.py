@@ -20,6 +20,7 @@ class MainWidget(QWidget):
     save_to_file_sig = Signal(name="Save to File")
     request_delete_sig = Signal(list, name="Delete Rows")
     set_month_sig = Signal(str)
+    request_edit_sig = Signal(int, int, object)
 
     def __init__(self, col_names: list[str]):
 
@@ -35,6 +36,7 @@ class MainWidget(QWidget):
         self.layout.setColumnMinimumWidth(1, 600)
         self.layout.setColumnMinimumWidth(2, 500)
         self.layout.addWidget(self.table_widget, 1, 1)
+        self.table_widget.cellChanged.connect(self.somthing_changed)
 
         # Create an input entry widget.
         self.inputWidget = InputWidget(self.col_names)
@@ -116,16 +118,32 @@ class MainWidget(QWidget):
             for j in range(num_cols):
                 tmp_item = QTableWidgetItem(str(entries.iat[i, j]))
                 self.table_widget.setItem(i, j, tmp_item)
+
+    @Slot()
+    def somthing_changed(self, row, col):
+        """
+        Emit a signal carrying a dictionary with key being column changed and value being the new entry.  
+        """
+        logger.info(f"row: {row}, col: {col} changed.")
+        new_val = self.get_row(row)[col]
+        logger.info(f"New value: {new_val}")
+
+        index = self.curr_indicies[row]
+        self.request_edit_sig.emit(index, col, new_val)
     
     @Slot()
     def refresh_table(self, model: FinancialModel, date_range: tuple):
+        self.table_widget.cellChanged.disconnect()
         logger.info("Refreshing table.")
         num_rows = self.table_widget.rowCount()
         for i in range(num_rows):
             self.table_widget.removeRow(0)
 
-        self.fill_table(model.get_data_in_date_range(date_range[0], date_range[1], sorted=True))
+        selected_data = model.get_data_in_date_range(date_range[0], date_range[1], sorted=True)
+        self.curr_indicies = selected_data.index
+        self.fill_table(selected_data)
         self.fill_pie_chart(model.calculate_tag_costs(date_range))
+        self.table_widget.cellChanged.connect(self.somthing_changed)
 
     @Slot()
     def request_save(self):

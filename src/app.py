@@ -59,6 +59,17 @@ class App(QObject):
         self.main_widget.request_delete_sig.connect(self.remove_selected_entries)
         self.main_widget.all_time_button.clicked.connect(self.set_all_time)
         self.main_widget.set_month_sig.connect(self.set_month_range)
+        self.main_widget.request_edit_sig.connect(self.edit_entry)
+
+    @Slot()
+    def edit_entry(self, index, col_changed, new_value):
+        try:
+            self.finance_model.edit_item(index, self.col_names[col_changed], new_value)
+        except TypeError:
+            logger.error(f"{new_value} cannot be cast to requested {self.col_names[col_changed]}. Try again.")
+
+        self.data_changed.emit(self.finance_model, self.date_range)
+
     
     @Slot()
     def set_all_time(self):
