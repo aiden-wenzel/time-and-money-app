@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "time_and_money"
+version = "0.1.0"
+dependencies = [
+    "pyside6",
+    "pandas",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
